@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
@@ -28,8 +29,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements GetFlickrJsonData.OnDataAvailable, RecycleItemClickListener.OnRecycleClickListener {
+public class MainActivity extends AppCompatActivity implements GetFlickrJsonData.OnDataAvailable, RecycleItemClickListener.OnRecycleClickListener {
     private static final String TAG = "MainActivity";
+    static final String FLICKR_QUERY = "FLICKR_QUERY";
+    static final String PHOTO_TRANSFER = "PHOTO_TRANSFER";
     private FlickrRecycleViewAdapter flickrRecycleViewAdapter;
 
     @Override
@@ -38,7 +41,11 @@ public class MainActivity extends BaseActivity implements GetFlickrJsonData.OnDa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        activateToolbar(false);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));

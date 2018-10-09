@@ -10,11 +10,14 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 
-public class PhotoDetailActivity extends BaseActivity {
+public class PhotoDetailActivity extends AppCompatActivity {
     private static final String TAG = "PhotoDetailActivity";
+    static final String FLICKR_QUERY = "FLICKR_QUERY";
+    static final String PHOTO_TRANSFER = "PHOTO_TRANSFER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.preference.PreferenceManager;
@@ -13,9 +14,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.widget.SearchView;
 
-public class SearchActivity extends BaseActivity {
+public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = "SearchActivity";
+    static final String FLICKR_QUERY = "FLICKR_QUERY";
     private SearchView searchView;
 
     @Override

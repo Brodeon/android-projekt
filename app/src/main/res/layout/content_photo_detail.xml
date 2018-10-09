@@ -27,7 +27,7 @@
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/photoImage"
+                app:layout_constraintTop_toBottomOf="@+id/photo_title"
                 tools:text="TextView" />
 
             <ImageView
@@ -52,8 +52,9 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/photo_author"
+                app:layout_constraintTop_toBottomOf="@+id/photoImage"
                 tools:text="TextView" />
 
             <TextView
@@ -65,7 +66,7 @@
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/photo_title"
+                app:layout_constraintTop_toBottomOf="@+id/photo_author"
                 tools:text="TextView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

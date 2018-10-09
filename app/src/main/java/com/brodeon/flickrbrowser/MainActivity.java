@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
 
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(false);
 
         RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));

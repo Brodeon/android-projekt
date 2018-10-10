@@ -8,4 +8,8 @@
         android:orderInCategory="101"
         android:title="@string/activity_search"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_refresh"
+        android:title="Refresh"
+        app:showAsAction="never" />
 </menu>

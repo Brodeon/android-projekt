@@ -91,9 +91,6 @@ class GetRawData extends AsyncTask <String, Void, String> {
 
     void runInSameThread(String s) {
         Log.d(TAG, "runInSameThread: starts");
-
-//        onPostExecute(doInBackground(s));
-
         if (mCallback != null) {
             String result = doInBackground(s);
             mCallback.onDownloadComplete(result, mDownloadStatus);

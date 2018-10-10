@@ -1,39 +1,37 @@
 package com.brodeon.flickrbrowser;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GestureDetectorCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements GetFlickrJsonData.OnDataAvailable, RecycleItemClickListener.OnRecycleClickListener {
+public class MainActivity extends AppCompatActivity implements GetFlickrJsonData.OnDataAvailable, RecycleItemClickListener.OnRecycleClickListener{
     private static final String TAG = "MainActivity";
     static final String FLICKR_QUERY = "FLICKR_QUERY";
     static final String PHOTO_TRANSFER = "PHOTO_TRANSFER";
     private FlickrRecycleViewAdapter flickrRecycleViewAdapter;
+    List<Photo> photos = null;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -55,6 +53,15 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         flickrRecycleViewAdapter = new FlickrRecycleViewAdapter(new ArrayList<Photo>(), this);
         recyclerView.setAdapter(flickrRecycleViewAdapter);
 
+        final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.refreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                downloadData();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         Log.d(TAG, "onCreate: ends");
     }
 
@@ -62,15 +69,7 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
     protected void onResume() {
         Log.d(TAG, "onResume: starts");
         super.onResume();
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String queryResult = sharedPreferences.getString(FLICKR_QUERY, "");
-
-        if (queryResult.length() > 0) {
-            GetFlickrJsonData getFlickrJsonData = new GetFlickrJsonData("https://api.flickr.com/services/feeds/photos_public.gne", "en-us", true, this);
-            getFlickrJsonData.execute(queryResult);
-        }
-
+        downloadData();
         Log.d(TAG, "onResume: ends");
     }
 
@@ -88,13 +87,17 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_search) {
-            Intent intent = new Intent(this, SearchActivity.class);
-            startActivity(intent);
-            return true;
+        switch (id) {
+            case R.id.action_search:
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_refresh:
+                downloadData();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         Log.d(TAG, "onDataAvailable: starts");
         if (status == DownloadStatus.OK) {
             flickrRecycleViewAdapter.loadNewData(data);
+            this.photos = data;
         } else {
             Log.e(TAG, "onDownloadComplete: faild with status " + status);
         }
@@ -123,4 +127,32 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         intent.putExtra(PHOTO_TRANSFER, flickrRecycleViewAdapter.getPhoto(position));
         startActivity(intent);
     }
+
+    private boolean isOnline() {
+        try {
+            int timeoutMs = 1500;
+            Socket sock = new Socket();
+            SocketAddress sockaddr = new InetSocketAddress("8.8.8.8", 53);
+
+            sock.connect(sockaddr, timeoutMs);
+            sock.close();
+
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+
+    }
+
+    private void downloadData() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String queryResult = sharedPreferences.getString(FLICKR_QUERY, "");
+
+        if (queryResult.length() > 0) {
+            GetFlickrJsonData getFlickrJsonData = new GetFlickrJsonData("https://api.flickr.com/services/feeds/photos_public.gne", "en-us", true, this);
+            getFlickrJsonData.execute(queryResult);
+        }
+    }
+
+
 }

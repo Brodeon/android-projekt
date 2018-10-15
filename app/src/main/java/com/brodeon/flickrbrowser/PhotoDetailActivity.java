@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
     private static final String TAG = "PhotoDetailActivity";
     static final String FLICKR_QUERY = "FLICKR_QUERY";
     static final String PHOTO_TRANSFER = "PHOTO_TRANSFER";
+    private ImageView photoImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        Photo photo = (Photo) intent.getSerializableExtra(PHOTO_TRANSFER);
+        final Photo photo = (Photo) intent.getSerializableExtra(PHOTO_TRANSFER);
 
         if (photo != null) {
             Resources resources = getResources();
@@ -48,7 +50,19 @@ public class PhotoDetailActivity extends AppCompatActivity {
             String author = resources.getString(R.string.photo_author_text, photo.getAuthor());
             photoAuthor.setText(author);
 
-            ImageView photoImage = findViewById(R.id.photoImage);
+            photoImage = findViewById(R.id.photoImage);
+
+            photoImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PhotoDialog photoDialog = new PhotoDialog();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(PHOTO_TRANSFER, photo);
+                    photoDialog.setArguments(bundle);
+                    photoDialog.show(getSupportFragmentManager(), null);
+                }
+            });
+
             Picasso.with(this).load(photo.getLink())
                     .error(R.drawable.placeholder_second)
                     .placeholder(R.drawable.placeholder_second)

@@ -27,13 +27,42 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity implements GetFlickrJsonData.OnDataAvailable, RecycleItemClickListener.OnRecycleClickListener{
+    /**
+     * Tag MainActivity
+     */
     private static final String TAG = "MainActivity";
+
+    /**
+     * String odpowiedzialny za wyjęcie Taga z SharedPreferences
+     */
     static final String FLICKR_QUERY = "FLICKR_QUERY";
+
+    /**
+     * String odpowiedzialny za przypisanie danych podczas otwierania nowej aktywności
+     */
     static final String PHOTO_TRANSFER = "PHOTO_TRANSFER";
+
+    /**
+     * Adapter do RecycleView
+     */
     private FlickrRecycleViewAdapter flickrRecycleViewAdapter;
+
+    /**
+     * Pole odpowiedzialny za zapisanie SwipeRefreshLayout który implementuje zachowanie odświeżania strony
+     */
+    private SwipeRefreshLayout swipeRefreshLayout;
+
+    /**
+     * Lista przechowująca listę zdjęć
+     */
     List<Photo> photos = null;
 
     @Override
+    /**
+     * Otwiera się gdy aktywność jest pierwszy raz włączana. Odpowiada za znalezienie layoutu RecycleView, przypisanie do niego adaptera
+     * oraz LayoutManagera. Odpowiada również za przypisanie do swipeRefreshLayout odpowiedniego layoutu i stworzenie setOnRefreshListener
+     * do swipeRefreshLayout. Listener swipeRefreshLayout odpowiada za pobranie zdjęć z internetu
+     */
     protected void onCreate(final Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: starts");
         super.onCreate(savedInstanceState);
@@ -53,18 +82,20 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         flickrRecycleViewAdapter = new FlickrRecycleViewAdapter(new ArrayList<Photo>(), this);
         recyclerView.setAdapter(flickrRecycleViewAdapter);
 
-        final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.refreshLayout);
+        swipeRefreshLayout = findViewById(R.id.refreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 downloadData();
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
         Log.d(TAG, "onCreate: ends");
     }
 
+    /**
+     * Gdy aktywność jest ponownie uruchamiana ma pobrać
+     */
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume: starts");
@@ -73,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         Log.d(TAG, "onResume: ends");
     }
 
+    /**
+     * Inflatuje menu do aktywności
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -80,6 +116,11 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         return true;
     }
 
+    /**
+     * Decyduje który z elementów menu(search bądź refresh) ma zostać użyty
+     * @param item item do wybrania
+     * @return true jeśli został wybrany element z menu
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -100,6 +141,12 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         }
     }
 
+
+    /**
+     * Callback wywoływany wtedy gdy pobrało dane z internetu
+     * @param data pobrane zdjęcia z internetu
+     * @param status enum, zawierający status pobrania
+     */
     @Override
     public void onDataAvailable(List<Photo> data, DownloadStatus status) {
         Log.d(TAG, "onDataAvailable: starts");
@@ -110,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
             Log.e(TAG, "onDownloadComplete: faild with status " + status);
         }
 
+        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
         Log.d(TAG, "onDataAvailable: ends");
     }
 
@@ -119,6 +169,11 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
 //        Toast.makeText(this, "Normal tap at position " + position, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Callback wywołany gdy zostało wykryte długie naciśniecie na elemencie RecycleView
+     * @param view naciśnięty element RecycleView
+     * @param position pozycja naciśniętego elementu RecycleView w liście zdjęć(List<Photo> photos)
+     */
     @Override
     public void onItemLongClick(View view, int position) {
         Log.d(TAG, "onItemLongClick: starts");
@@ -128,22 +183,9 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         startActivity(intent);
     }
 
-    private boolean isOnline() {
-        try {
-            int timeoutMs = 1500;
-            Socket sock = new Socket();
-            SocketAddress sockaddr = new InetSocketAddress("8.8.8.8", 53);
-
-            sock.connect(sockaddr, timeoutMs);
-            sock.close();
-
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-
-    }
-
+    /**
+     * Metoda odpowiedzialna za zlecenie pobrania danych do GetFlickrJsonData
+     */
     private void downloadData() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String queryResult = sharedPreferences.getString(FLICKR_QUERY, "");

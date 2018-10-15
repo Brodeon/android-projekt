@@ -10,8 +10,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Enum zawierający status pobrania
+ */
 enum DownloadStatus {IDLE, PROCESSING, NOT_INITIALLIZED, FAILD_OR_EMPTY, OK}
 
+/**
+ * Odpowiada za pobranie zdjęć z internetu na podstawie podanego linka do Flickr API
+ */
 class GetRawData extends AsyncTask <String, Void, String> {
     private static final String TAG = "GetRawData";
 

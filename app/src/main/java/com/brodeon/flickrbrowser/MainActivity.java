@@ -3,6 +3,7 @@ package com.brodeon.flickrbrowser;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -75,7 +76,12 @@ public class MainActivity extends AppCompatActivity implements GetFlickrJsonData
         actionBar.setDisplayHomeAsUpEnabled(false);
 
         RecyclerView recyclerView = findViewById(R.id.recycleView);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        }
 
         recyclerView.addOnItemTouchListener(new RecycleItemClickListener(this, recyclerView, this));
 
